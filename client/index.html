@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Client App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #screenshots {
+            margin-top: 20px;
+        }
+        img {
+            max-width: 100%;
+            margin: 10px 0;
+        }
+        #loader{
+            margin: -20px 0px 0px 360px;
+            width: 20px;
+            height: 20px;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <h1>Client App</h1>
+    <div id="status">Connecting to server...</div>     
+    <img id="loader" src="./assets/hourglass.gif" style="display:none;" alt="Loading..." />
+ 
+    <input type="text" id="ipInput" placeholder="Enter Server IP here" />
+    <input type="text" id="uuidInput" placeholder="Enter UUID here" />
+    <button id="connectBtn">Connect</button>
+    <button id="disconnectBtn" style="display:none;">Disconnect</button>
+    
+    <div id="screenshots"></div>
+
+    <script>
+        const { io } = require('socket.io-client');
+        let socket; // Declare socket variable outside
+        let screenshotTimeout; // To track the timeout for screenshots
+
+        function connectSocket(ipAddress) {
+            socket = io(`http://${ipAddress}:3000`);
+
+            // Update status when connected to server
+            socket.on('connect', () => {
+                document.getElementById('status').innerText = 'Enter UUID to connect.';
+            });
+
+            // Update status when disconnected from server
+            socket.on('disconnect', () => {
+                document.getElementById('status').innerText = 'Disconnected from server';
+                document.getElementById('uuidInput').value = ''; // Clear the input
+                document.getElementById('disconnectBtn').style.display = 'none'; // Hide disconnect button
+            });
+
+            // Handle UUID validation from the server
+            socket.on('uuidMatch', (isMatch) => {
+                if (isMatch) {
+                    document.getElementById('status').innerText = 'UUID matched! Connected to server.';
+                    document.getElementById('disconnectBtn').style.display = 'inline-block'; // Show disconnect button
+                    resetScreenshotTimeout(); // Start the timeout for receiving screenshots
+                } else {
+                    document.getElementById('status').innerText = 'UUID mismatch. Please try again.';
+                }
+            });
+
+            // Handle incoming screenshots
+            socket.on('screenshot', (imgBase64) => {
+                resetScreenshotTimeout(); // Reset the timeout on receiving a new screenshot
+                let img = document.getElementById('sharedScreenshot');
+                if (!img) {
+                    img = document.createElement('img');
+                    img.id = 'sharedScreenshot';
+                    img.style.maxWidth = '100%';
+                    document.getElementById('screenshots').appendChild(img);
+                }
+                img.src = `data:image/png;base64,${imgBase64}`;
+            });
+        }
+
+        // Function to reset the screenshot timeout
+        function resetScreenshotTimeout() {
+            if (screenshotTimeout) {
+                clearTimeout(screenshotTimeout);
+            }
+            screenshotTimeout = setTimeout(() => {
+                console.log('No new screenshot received. Assuming screen sharing has stopped.');
+
+                // Clear existing images
+                document.getElementById('screenshots').innerHTML = '';
+
+                // Show loader
+                document.getElementById('loader').style.display = 'block';
+
+                // Set status message
+                document.getElementById('status').innerText = 'Connection disconnected. Screen sharing stopped.';
+                document.getElementById('uuidInput').value = ''; // Clear the input
+
+                setTimeout(() => {
+                    // Hide loader before reloading
+                    document.getElementById('loader').style.display = 'none';
+                    // Reload the client app
+                    location.reload(); // This will reload the current page
+                }, 2000);
+
+            }, 1000); // Adjust timeout duration as needed
+        }
+
+        // Handle connection attempt when button is clicked
+        document.getElementById('connectBtn').addEventListener('click', () => {
+            const enteredUUID = document.getElementById('uuidInput').value;
+            const enteredIP = document.getElementById('ipInput').value;
+            
+            if (enteredUUID && enteredIP) {
+                connectSocket(enteredIP); // Initialize socket connection with provided IP
+                socket.emit('checkUUID', enteredUUID); // Check UUID
+            } else {
+                document.getElementById('status').innerText = 'Please enter both IP address and UUID.';
+            }
+        });
+
+        // Disconnect button functionality
+        document.getElementById('disconnectBtn').addEventListener('click', () => {
+            socket.disconnect(); // Disconnect from the server
+            document.getElementById('status').innerText = 'Disconnected from server';
+            document.getElementById('disconnectBtn').style.display = 'none'; // Hide disconnect button
+            document.getElementById('screenshots').innerHTML = ''; // Clear screenshots
+        });
+    </script>
+</body>
+</html>

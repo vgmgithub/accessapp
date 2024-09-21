@@ -1,0 +1,37 @@
+{
+    "name": "sifyaccess-client",
+    "version": "1.0.0",
+    "main": "main.js",
+    "description": "Your client app description here",
+    "author": "GopalaKrishnan.V",
+    "scripts": {
+      "start": "electron .",
+      "build": "electron-builder"  
+    },
+    "dependencies": {
+      "@emotion/react": "^11.13.3",
+      "@emotion/styled": "^11.13.0",
+      "@mui/material": "^6.1.1",
+      "socket.io-client": "^4.0.0"  
+    },
+    "devDependencies": {
+      "electron": "^25.9.8",
+      "electron-builder": "^25.0.5"
+    },
+    "build": {
+      "appId": "com.yourapp.client",
+      "files": [
+        "main.js",
+        "index.html",
+        "package.json",
+        "node_modules/**/*" ,
+         "assets/**/*"
+         
+      ],
+      "icon": "assets/sifyaccessClient.ico",
+      "directories": {
+        "output": "sifyaccess-client"  
+      }
+    }
+  }
+  
