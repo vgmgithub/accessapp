@@ -1,131 +1,1010 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Client App</title>
+    <title>VGMAccess | Client Application</title>
     <style>
+        * {
+            user-select: none; /* Prevent text selection */
+            -webkit-user-select: none; /* For Chrome/Safari */
+            -moz-user-select: none; /* For Firefox */
+            -ms-user-select: none; /* For IE/Edge */
+        }
+        /* Allow text selection for specific elements */
+        input, textarea, .selectable {
+            user-select: text;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: unset;
         }
         #screenshots {
-            margin-top: 20px;
+            margin:5px 20px 40px 20px;
+            border: 10px solid transparent; /* Set a transparent border */
+            border-radius: 8px; /* Apply border radius */ 
+            animation: gradient-border 3s infinite; /* Apply animation */ 
+            background-color: #f9f9f9; /* Background color of the box */
+            box-shadow:1px 1px 6px #0000006e
+        }
+
+        @keyframes gradient-border {
+            0% {
+                border-image: linear-gradient(to right, #e8e8e8, #ffffff) 1;
+            }
+            50% {
+                border-image: linear-gradient(to right, #ffffff, #e8e8e8) 1;
+            }
+            100% {
+                border-image: linear-gradient(to right, #e8e8e8, #ffffff) 1;
+            }
         }
         img {
-            max-width: 100%;
-            margin: 10px 0;
+            /* max-width: 100%; */
+            /* margin: 10px 0; */
         }
-        #loader{
-            margin: -20px 0px 0px 360px;
+        /* #loader {
+            margin: -18px 0px 0px 280px;
             width: 20px;
             height: 20px;
             position: absolute;
+        } */
+        header {
+            background-color: #333;
+            color: white;
+            border-bottom: 1px solid;
+            /* padding: 20px; */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        #connectBtn  {
+            margin-top: 10px;
+            padding: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        #disconnectBtn, #fileBtn {
+            margin-top: 10px;
+            padding: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 10px;
+            width: 65px;
+        }
+        #connectBtn {
+            background-color: #007bff;
+            color: white;
+        }
+        #disconnectBtn {
+            background-color: red;
+            color: white;
+            display: none; /* Initially hidden */
+        }
+        #fileBtn{
+            background-color: rgb(240, 185, 5);
+            color: white;
+            display: none; /* Initially hidden */
+        }
+
+        /* Logo styles */
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            left: 15px;
+            position: absolute;
+        }
+
+        .logo h1 {
+            font-size: 20px;
+        }
+
+        .input-textbox {
+            width: 100%; /* Full width */
+            max-width: 300px; /* Max width */
+            padding: 6px;
+            top: 2px;
+            border: 2px solid #e8e8e8; /* Solid border */
+            border-radius: 8px; /* Rounded corners */
+            font-size: 16px; /* Font size */
+            color: #333; /* Text color */
+            background: linear-gradient(to right, #ffffff, #f0f0f0); /* Gradient background */
+            transition: border-color 0.3s, box-shadow 0.3s; /* Transition for smooth effect */
+        }
+
+        /* Focus state */
+        .input-textbox:focus {
+            border-color: #007BFF; /* Change border color on focus */
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Add shadow on focus */
+            outline: none; /* Remove default outline */
+        }
+
+        /* Placeholder styling */
+        .input-textbox::placeholder {
+            color: #999; /* Placeholder text color */
+            opacity: 1; /* Ensures full opacity */
+        }
+        /* #connect-div{
+            display: none;
+        } */
+
+        #p_s_status{
+            position: fixed;
+            font-size: 9px;
+            font-weight: 700;
+            background-color: #9e9e9e4f;
+            padding: 7px;
+            border-radius: 5px;
+            bottom: 5px;
+            right: 10px;
+
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.4em 0.8em;
+            font-size: 8px;
+            font-weight: bold;
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+        }
+
+        /* Connected state - green */
+        .connected {
+            background-color: #28a745; /* Green */
+        }
+
+        /* Disconnected state - red */
+        .disconnected {
+            background-color: #dc3545; /* Red */
+        }
+
+        #connect-div {
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+            height: 12vh;
+            flex-direction: column; /* Stack elements vertically */
+        }
+
+        .otp-input {
+            display: flex;
+            gap: 10px; /* Space between the OTP boxes */
+            /* margin-top: -15px !important; */
+        }
+
+        .otp-box {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            font-size: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            margin-top: 20px; /* Space between OTP input and buttons */
+            border-radius: 5px;
+            width: 133px;
+
+        }
+    /* Container for buttons to align them horizontally */
+    .buttons-container {
+        display: flex;
+        gap: 2px; /* Space between the buttons */
+        margin-top: -5px;
+            
+    }
+    
+    @keyframes gradient-move {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+    /* @keyframes gradient-move-new {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    } */
+ .biosnumber{
+    font-size: 6px;
+    background: white;
+    padding: 2px 10px;
+    border-radius: 3px;
+    top: 25px;
+    position: absolute;
+    right: 10px;
+    color: black;
+    font-weight: 800;
+ }
+
+.status-message { 
+    padding: 6px 10px; /* Padding around the message */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 10px; /* Font size */
+    font-weight: 600;
+    text-align: center; /* Center the text */
+    width: 95%; /* Width of the status message box */
+    background: linear-gradient(270deg, #8abf1e, #f9e200, #e15f0d, #c10303); /* Gradient colors */
+    background-size: 300% 100%; /* Make the background larger for animation */
+    animation: gradient-move 3s ease infinite; /* Animation properties */
+}
+.file-status-message { 
+    padding: 6px 10px; /* Padding around the message */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 10px; /* Font size */
+    font-weight: 600;
+    margin-top: -23px;
+    margin-left: 9px;
+    position: absolute;
+    display: none;
+    z-index: 9;
+    text-align: center; /* Center the text */
+    width: 95%; /* Width of the status message box */
+    background: linear-gradient(270deg, #1e84bf, #00f925, #0de1cf, #dcd807); /* Gradient colors */
+    background-size: 300% 100%; /* Make the background larger for animation */
+    animation: gradient-move 3s ease infinite; /* Animation properties */
+}
+ 
+.status-message.success{
+    background: linear-gradient(270deg, #8abf1e, #3e8508, #214a02); /* Gradient colors */
+    background-size: 300% 100%; /* Make the background larger for animation */
+    animation: gradient-move 3s ease infinite; /* Animation properties */
+
+}
+.status-message.sharing{
+    background: linear-gradient(270deg, #8ac5c2, #2576a9, #0b64c9); /* Gradient colors */
+    background-size: 300% 100%; /* Make the background larger for animation */
+    animation: gradient-move 3s ease infinite; /* Animation properties */
+
+}
+
+.status-message.warning{
+    background: linear-gradient(270deg, #dfd349, #ad721a, #a85d08); /* Gradient colors */
+    background-size: 300% 100%; /* Make the background larger for animation */
+    animation: gradient-move 3s ease infinite; /* Animation properties */
+
+}
+
+#notification {
+    position: fixed;
+    top: 95px;
+    right: 18px;
+    padding: 5px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    display: none;
+    font-size: 8px;
+    width: 202px;
+    box-shadow: 1px 5px 8px #00000038;
+    text-align: center;
+    cursor: pointer;
+    animation: float 2s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-5px); } /* Adjust how far up you want it to move */
+    100% { transform: translateY(0); }
+}
     </style>
 </head>
 <body>
-    <h1>Client App</h1>
-    <div id="status">Connecting to server...</div>     
-    <img id="loader" src="./assets/hourglass.gif" style="display:none;" alt="Loading..." />
+    <audio id="notification-pop" src="./assets/pop.mp3" preload="auto"></audio>
+
+    <div id="notification" style="display: none;"></div>
+
+    <!-- Header Section -->
+    <header>
+        <!-- Logo and Title -->
+        <div class="logo">
+            <img src="./assets/logo.png" width="70px">
+            <h1>SCREEN ACCESS APP</h1>
+            <span class="biosnumber">loading</span>
+        </div>
+
  
-    <input type="text" id="ipInput" placeholder="Enter Server IP here" />
-    <input type="text" id="uuidInput" placeholder="Enter UUID here" />
-    <button id="connectBtn">Connect</button>
-    <button id="disconnectBtn" style="display:none;">Disconnect</button>
+    </header> 
+    <center>
+        <audio id="notification-connect" src="./assets/connect.wav" preload="auto"></audio>
+        <audio id="notification-disconnect" src="./assets/disconnect.wav" preload="auto"></audio>
+
+        <div id="status" class="status-message">Connecting to server...</div>
+        <div id="filestatus" class="file-status-message"></div>
+
+        <div id="connect-div" >
+            <span id="connection-span" style="display: none ">
+                <div class="otp-input">
+                    <input type="text" class="otp-box" maxlength="1" id="uuidInput1">
+                    <input type="text" class="otp-box" maxlength="1" id="uuidInput2">
+                    <input type="text" class="otp-box" maxlength="1" id="uuidInput3">
+                    <input type="text" class="otp-box" maxlength="1" id="uuidInput4">
+                    <input type="text" class="otp-box" maxlength="1" id="uuidInput5">
+                </div>
+                <!-- <input type="text" class="input-textbox" id="uuidInput"  placeholder="Enter UUID here...">  -->
+                <!-- Buttons container -->
+                <div class="buttons-container">
+                    <button id="connectBtn">Connect</button>
+                    <button id="disconnectBtn" >Disconnect</button>
+                    <button id="fileBtn" >File Share</button><br>
+                    <input type="file" id="fileInput" style="display:none" />
+                </div>
+            </span>
+        </div>
+
+        <div id="screenshots" style="display: none;"> </div>
+        <div>
+            <span id="p_s_status">public server <span id="connectionBadge" class="badge disconnected">disconnected</span></span>
+
+        </div>
+        <!-- <div id="mouseLabel" style="position: absolute; background: #333; color: white; padding: 2px 8px; border-radius: 4px;  font-size: 12px;display:none;"> -->
+            <div id="mouseLabel" style="position: absolute; display: none;">
+                <img src="assets/mouse.png" alt="icon" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;">
+                <span id="mouseLabelText" style="margin: 12px 0px 0px -7px;position: absolute;background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">Label Text</span>
+            </div>
+    </center>
+
     
-    <div id="screenshots"></div>
-
     <script>
-        const { io } = require('socket.io-client');
-        let socket; // Declare socket variable outside
-        let screenshotTimeout; // To track the timeout for screenshots
+        const { ipcRenderer } = require('electron');
 
-        function connectSocket(ipAddress) {
-            socket = io(`http://${ipAddress}:3000`);
 
-            // Update status when connected to server
-            socket.on('connect', () => {
-                document.getElementById('status').innerText = 'Enter UUID to connect.';
-            });
+        
+        document.getElementById('status').classList.remove('sharing');
+        document.getElementById('status').innerText = 'Connecting to server...';
+        document.getElementById('status').classList.remove('warning');
+        document.getElementById('status').classList.remove('success');
 
-            // Update status when disconnected from server
-            socket.on('disconnect', () => {
-                document.getElementById('status').innerText = 'Disconnected from server';
-                document.getElementById('uuidInput').value = ''; // Clear the input
-                document.getElementById('disconnectBtn').style.display = 'none'; // Hide disconnect button
-            });
 
-            // Handle UUID validation from the server
-            socket.on('uuidMatch', (isMatch) => {
-                if (isMatch) {
-                    document.getElementById('status').innerText = 'UUID matched! Connected to server.';
-                    document.getElementById('disconnectBtn').style.display = 'inline-block'; // Show disconnect button
-                    resetScreenshotTimeout(); // Start the timeout for receiving screenshots
-                } else {
-                    document.getElementById('status').innerText = 'UUID mismatch. Please try again.';
-                }
-            });
-
-            // Handle incoming screenshots
-            socket.on('screenshot', (imgBase64) => {
-                resetScreenshotTimeout(); // Reset the timeout on receiving a new screenshot
-                let img = document.getElementById('sharedScreenshot');
-                if (!img) {
-                    img = document.createElement('img');
-                    img.id = 'sharedScreenshot';
-                    img.style.maxWidth = '100%';
-                    document.getElementById('screenshots').appendChild(img);
-                }
-                img.src = `data:image/png;base64,${imgBase64}`;
-            });
-        }
-
-        // Function to reset the screenshot timeout
-        function resetScreenshotTimeout() {
-            if (screenshotTimeout) {
-                clearTimeout(screenshotTimeout);
-            }
-            screenshotTimeout = setTimeout(() => {
-                console.log('No new screenshot received. Assuming screen sharing has stopped.');
-
-                // Clear existing images
-                document.getElementById('screenshots').innerHTML = '';
-
-                // Show loader
-                document.getElementById('loader').style.display = 'block';
-
-                // Set status message
-                document.getElementById('status').innerText = 'Connection disconnected. Screen sharing stopped.';
-                document.getElementById('uuidInput').value = ''; // Clear the input
-
-                setTimeout(() => {
-                    // Hide loader before reloading
-                    document.getElementById('loader').style.display = 'none';
-                    // Reload the client app
-                    location.reload(); // This will reload the current page
-                }, 2000);
-
-            }, 1000); // Adjust timeout duration as needed
-        }
-
-        // Handle connection attempt when button is clicked
-        document.getElementById('connectBtn').addEventListener('click', () => {
-            const enteredUUID = document.getElementById('uuidInput').value;
-            const enteredIP = document.getElementById('ipInput').value;
+        document.getElementById('fileBtn').addEventListener('click', function () {
+            // Trigger file input selection
+            document.getElementById('fileInput').click();
             
-            if (enteredUUID && enteredIP) {
-                connectSocket(enteredIP); // Initialize socket connection with provided IP
-                socket.emit('checkUUID', enteredUUID); // Check UUID
+             
+        });
+
+        ipcRenderer.send('request-bios-number');
+
+        // Listen for 'update-bios-number' event to receive and display BIOS number
+        ipcRenderer.on('update-bios-number', (event, biosNumber) => {
+            document.querySelector('.biosnumber').innerHTML = 'BIOS NUMBER: '+biosNumber;
+        });
+
+        const CHUNK_SIZE = 5.1 * 1024 * 1024; // 5 MB
+
+        document.getElementById('fileInput').addEventListener('change', function () {
+            const file = this.files[0];  // Get the selected file
+
+            if (file) {
+
+                if (file.size > CHUNK_SIZE) {
+                    const statusElement = document.getElementById('filestatus');
+                    statusElement.innerText = "Error: File size exceeds 5 MB."; 
+                    statusElement.style.display = 'block';
+                    this.value = ''; // Clear the input
+                    setTimeout(() => {
+                        document.getElementById("filestatus").style.display = 'none';
+
+                    }, 2000); 
+
+                    return; // Exit the function to prevent further processing
+                }
+                let enteredUUID = '';
+                const otpBoxes = document.querySelectorAll('.otp-box');
+
+                otpBoxes.forEach(box => enteredUUID += box.value); // Concatenate values of all input boxes
+
+                const statusElement = document.getElementById('filestatus');
+                statusElement.innerText = "File is being uploading.."; 
+                document.getElementById("filestatus").style.display = 'block';
+
+                const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+                let currentChunk = 0;
+
+                const uploadNextChunk = () => {
+                    const start = currentChunk * CHUNK_SIZE;
+                    const end = Math.min(start + CHUNK_SIZE, file.size);
+                    const chunk = file.slice(start, end); // Get the current chunk
+
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const fileData = event.target.result;
+
+                        // Send chunk data to the main process using IPC
+                        ipcRenderer.send('file-share', { 
+                            fileName: file.name, 
+                            fileData: fileData,  
+                            chunkIndex: currentChunk,
+                            totalChunks: totalChunks
+                        }, enteredUUID);
+
+                        console.log(`Chunk ${currentChunk + 1}/${totalChunks} of "${file.name}" sent to the main process.`);
+
+                        currentChunk++;
+                        if (currentChunk < totalChunks) {
+                            uploadNextChunk(); // Upload the next chunk
+                        } else {
+                            statusElement.innerText = "File is being uploading..";
+                        }
+                    };
+
+                    reader.readAsArrayBuffer(chunk);  // Read the chunk as an ArrayBuffer
+                };
+
+                uploadNextChunk(); // Start uploading chunks
+                this.value = '';
+            }
+        });
+        const otpInputs = document.querySelectorAll('.otp-box');
+
+        // Add an event listener for 'paste' on the first input
+        otpInputs[0].addEventListener('paste', (event) => {
+            const pasteData = (event.clipboardData || window.clipboardData).getData('text');
+            
+            // Ensure that the pasted data is a valid OTP (in this case, a string of 5 characters)
+            if (pasteData.length === otpInputs.length) {
+                otpInputs.forEach((input, index) => {
+                    input.value = pasteData.charAt(index);  // Distribute each character to respective input
+                });
+                event.preventDefault();  // Prevent the default paste action
+            }
+        });
+ 
+
+
+
+ipcRenderer.on('update-mouse-label', (event, { x, y, label }) => {
+    const mouseLabel = document.getElementById('mouseLabel');
+    const mouseLabelText = document.getElementById('mouseLabelText');
+    const container = document.getElementById('screenshots'); // Container holding the screenshot
+
+    // Ensure elements are available
+    if (!container || !mouseLabel) {
+        console.error('Container or mouseLabel is missing!');
+        return;
+    }
+
+    // Get the actual size of the container (this will change if the container is resized)
+    const containerRect = container.getBoundingClientRect();
+
+    // Define the scale range for x and y
+    const xStart = 0, xEnd = 1915;  // Global coordinate range for x
+    const xContainerStart = 20, xContainerEnd = 1230;  // Container range for x
+
+    const yStart = 0, yEnd = 1080;  // Global coordinate range for y
+    const yContainerStart = 60, yContainerEnd = 740;  // Container range for y
+
+    // Scale the x and y coordinates based on the global range to the container range
+    const scaledX = xContainerStart + ((x - xStart) / (xEnd - xStart)) * (xContainerEnd - xContainerStart);
+    const scaledY = yContainerStart + ((y - yStart) / (yEnd - yStart)) * (yContainerEnd - yContainerStart);
+
+    // Ensure the label stays within the bounds of the container
+    const labelWidth = mouseLabel.offsetWidth;
+    const labelHeight = mouseLabel.offsetHeight;
+
+    const finalX = Math.max(xContainerStart, Math.min(scaledX, containerRect.width - labelWidth));
+    const finalY = Math.max(yContainerStart, Math.min(scaledY, containerRect.height+200 - labelHeight));
+
+    // Update the label position based on the calculated final coordinates
+    mouseLabel.style.left = `${finalX+10}px`;
+    mouseLabel.style.top = `${finalY+100}px`;
+    mouseLabelText.innerText = label; // Set the label text
+    mouseLabel.style.display = 'block'; // Make the label visible
+
+    // Log the final position for debugging
+    console.log('Scaled coordinates:', { x: scaledX, y: scaledY });
+    console.log('Label position updated:', { left: finalX, top: finalY });
+});
+
+
+
+
+
+        // Handle server status update from main process
+        ipcRenderer.on('server-status', (event, message) => {
+            document.getElementById('status').innerText = message;
+            if (message.includes('Connected to public')) {
+                document.getElementById('status').classList.add('success');
+                // document.getElementById('loader').style.display = 'none';
+                document.getElementById('screenshots').style.display = 'none'; 
+                document.getElementById("connection-span").style.display = 'block';
+                const badge = document.getElementById('connectionBadge');
+                badge.classList.remove('disconnected');
+                badge.classList.add('connected');
+                badge.textContent = 'Connected';  // Hide share screen button
+                const otpBoxes = document.querySelectorAll('.otp-box');
+                if (otpBoxes.length > 0) {
+                    otpBoxes[0].focus(); // Focus on the first OTP box
+                }
+            } else if (message.includes('Disconnected')) {
+            document.getElementById('status').classList.remove('sharing');
+                document.getElementById('status').classList.remove('success');
+                document.getElementById("connection-span").style.display = 'none';
+
+                document.getElementById('disconnectBtn').style.display = 'none'; // Hide disconnect button
+                document.getElementById('fileBtn').style.display = 'none'; // Hide disconnect button
+                document.getElementById('screenshots').innerHTML = ''; // Clear screenshots
+                document.getElementById('screenshots').style.display = 'none';  
+            }
+        });
+
+
+        ipcRenderer.on('reconnect_attempt_public', (event, message) => {
+            document.getElementById('status').innerText = message;
+            // document.getElementById("connect-div").style.display = 'none';
+         
+
+            let enteredUUID = '';
+            const otpBoxes = document.querySelectorAll('.otp-box');
+
+            // Concatenate values of all input boxes
+            otpBoxes.forEach(box => enteredUUID += box.value.trim());
+
+            // Only send 'disconnect-client' if all OTP boxes have values
+            if (enteredUUID.length === otpBoxes.length && !enteredUUID.includes('')) {
+                ipcRenderer.send('disconnect-client', enteredUUID);
+                const audio_disconnect = document.getElementById('notification-disconnect');
+                audio_disconnect.play();
             } else {
-                document.getElementById('status').innerText = 'Please enter both IP address and UUID.';
+                console.error("Error: All OTP boxes must be filled before disconnecting.");
+            }
+
+            // Clear the OTP boxes and refocus on the first one
+            otpBoxes.forEach(box => box.value = '');
+            if (otpBoxes.length > 0) {
+                otpBoxes[0].focus();
+            }
+
+            const badge = document.getElementById('connectionBadge');
+            badge.classList.remove('connected');
+            badge.classList.add('disconnected');
+            badge.textContent = 'Disconnected';
+            document.getElementById('status').classList.remove('success');
+            document.getElementById('status').classList.remove('sharing');
+
+            document.getElementById('screenshots').innerHTML = ''; // Clear screenshots
+            document.getElementById('screenshots').style.display = 'none'; 
+            const connectBtn = document.getElementById('connectBtn');
+            connectBtn.disabled=false;
+            console.log('checkkkkkk');
+
+            connectBtn.innerText = "Connect"; // or connectBtn.textContent = "Connecting...";
+            
+            // Change button color (e.g., to gray)
+            connectBtn.style.backgroundColor = "#007bff"; 
+            document.getElementById('disconnectBtn').style.display = 'none'; // Hide disconnect button
+            document.getElementById('fileBtn').style.display = 'none'; // Hide disconnect button
+        });
+
+        ipcRenderer.on('server-disconnected', () => {
+            document.getElementById('status').innerText = 'Server Disconnected from public server. Enter UUID to connect.';
+            document.getElementById('status').classList.remove('sharing');
+            document.getElementById('status').classList.remove('warning');
+            document.getElementById('status').classList.add('success');
+            document.getElementById('screenshots').innerHTML = ''; // Clear screenshots
+            document.getElementById('screenshots').style.display = 'none'; 
+            const connectBtn = document.getElementById('connectBtn');
+            connectBtn.disabled=false;
+            // Change button text
+            console.log('disss');
+
+            connectBtn.innerText = "Connect"; // or connectBtn.textContent = "Connecting...";
+            const audio_disconnect = document.getElementById('notification-disconnect');
+            audio_disconnect.play();
+            // Change button color (e.g., to gray)
+            connectBtn.style.backgroundColor = "#007bff"; 
+            document.getElementById('disconnectBtn').style.display = 'none'; // Hide disconnect button
+            document.getElementById('fileBtn').style.display = 'none'; // Hide disconnect button
+            
+            // Clear the input boxes
+            const otpBoxes = document.querySelectorAll('.otp-box');
+            otpBoxes.forEach(box => box.value = '');
+            if (otpBoxes.length > 0) {
+                    otpBoxes[0].focus(); // Focus on the first OTP box
+            }
+            // img.src = ''; // Clear the image if you're using one
+            
+        });
+
+        
+        ipcRenderer.on('connect_error_public', () => {
+            document.getElementById('status').innerText = 'Connecting to Public Server...'; 
+            document.getElementById("connection-span").style.display = 'none';
+
+            document.getElementById('status').classList.remove('success');
+            document.getElementById('status').classList.remove('sharing');
+
+            const badge = document.getElementById('connectionBadge');
+            badge.classList.remove('connected');
+            badge.classList.add('disconnected');
+            badge.textContent = 'Disconnected';
+        });
+        ipcRenderer.on('no_access', () => {
+            document.getElementById('status').innerText = 'No Access to Public Server...'; 
+            document.getElementById('status').classList.add('warning');
+            document.getElementById('status').classList.remove('success');
+            document.getElementById("connection-span").style.display = 'none';
+
+        });
+        
+
+        ipcRenderer.on('file-received-server', (event,data) => {
+            console.log('New file update:', data.message);
+            console.log('New file path:', data.folderPath);
+            showNotification(data.message, data.folderPath);
+
+        });
+
+         // Function to display notifications
+         function showNotification(message,filepath) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            console.log('FOLDER',filepath);
+            // Play the notification sound
+            const audio_pop = document.getElementById('notification-pop');
+            audio_pop.play();
+            notification.addEventListener('click', () => {
+                if (filepath) { 
+                    ipcRenderer.send('open-folder', filepath);
+                    console.log(`Opening folder: ${filepath}`);
+                } else {
+                    console.error('No folder path provided.');
+                }
+            });
+            // Hide the notification after a few seconds
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 8000); // Change time as needed
+        }
+
+        ipcRenderer.on('file-saved', (event, message) => {
+            // console.log('Received message:', message);
+
+            // Set the message in the status element
+            const statusElement = document.getElementById('filestatus');
+            statusElement.innerText = message; 
+            // document.getElementById("filestatus").style.display = 'block';
+
+            setTimeout(() => {
+                document.getElementById("filestatus").style.display = 'none';
+
+            }, 2000); 
+
+        });
+        
+        
+        // Handle UUID status from main process
+        ipcRenderer.on('uuid-status', (event, message) => {
+            document.getElementById('status').innerText = message;
+            if (message.includes('UUID matched')) {
+                document.getElementById('status').classList.remove('warning');
+                document.getElementById('status').classList.add('success');
+                document.getElementById('status').classList.remove('sharing');
+                document.getElementById('status').innerText = 'UUID Matched...';
+                // console.log('sss');
+                const audio_connect = document.getElementById('notification-connect');
+                audio_connect.play();
+                // document.getElementById('connectBtn').disabled = true; // Show disconnect button
+                const connectBtn = document.getElementById('connectBtn');
+                connectBtn.disabled=true;
+                // Change button text
+                connectBtn.innerText = "Connected"; // or connectBtn.textContent = "Connecting...";
+
+                
+                // Change button color (e.g., to gray)
+                connectBtn.style.backgroundColor = "gray"; 
+                document.getElementById('disconnectBtn').style.display = 'inline-block'; // Show disconnect button
+                document.getElementById('fileBtn').style.display = 'inline-block'; // Show disconnect button
+                // document.getElementById('loader').style.display = 'none'; // Hide loader
+                document.getElementById('screenshots').style.display = 'block'; 
+                document.getElementById('screenshots').innerText = 'Loading...';
+            } else if (message.includes('UUID mismatch')) {
+                // Clear the input boxes
+                document.getElementById('status').classList.add('warning');
+                document.getElementById('status').classList.remove('success');
+                document.getElementById('status').classList.remove('sharing');
+                const otpBoxes = document.querySelectorAll('.otp-box');
+                otpBoxes.forEach(box => box.value = '');
+                if (otpBoxes.length > 0) {
+                    otpBoxes[0].focus(); // Focus on the first OTP box
+                }
+                // document.getElementById('loader').style.display = 'none'; // Hide loader
+                document.getElementById('screenshots').style.display = 'none'; 
+
+
+            }
+            
+        });
+
+        ipcRenderer.on('noServerAvail', (event, message) => {
+            
+            document.getElementById('status').classList.add('warning');
+            document.getElementById('status').classList.remove('success');
+            document.getElementById('status').innerText = message;
+            const otpBoxes = document.querySelectorAll('.otp-box');
+            otpBoxes.forEach(box => box.value = '');
+            if (otpBoxes.length > 0) {
+                    otpBoxes[0].focus(); // Focus on the first OTP box
+                }
+        });
+
+        ipcRenderer.on('client-disconnect-received', (event,value) => {
+            // alert('sdsad');
+            document.getElementById('status').classList.remove('sharing');
+
+            document.getElementById('status').innerText = 'Client Connected to public server. Enter UUID to connect.';
+            document.getElementById('status').classList.add('success');
+
+            document.getElementById('status').classList.remove('warning');
+
+            document.getElementById("connection-span").style.display = 'block';
+            // document.getElementById('connectBtn').disabled = false; // Show disconnect button
+            const connectBtn = document.getElementById('connectBtn');
+            connectBtn.disabled=false;
+            // Change button text
+            console.log(value);
+            connectBtn.innerText = "Connect"; // or connectBtn.textContent = "Connecting...";
+            if(value==0){
+                const audio_disconnect = document.getElementById('notification-disconnect');
+                audio_disconnect.play();
+            }
+            
+            // Change button color (e.g., to gray)
+            connectBtn.style.backgroundColor = "#007bff"; 
+            document.getElementById('disconnectBtn').style.display = "none";
+            document.getElementById('fileBtn').style.display = "none";
+            // document.getElementById('screenshots').style.display = 'none'; 
+            // document.getElementById("connect-div").style.display = 'block';
+            const otpBoxes = document.querySelectorAll('.otp-box'); 
+            if (otpBoxes.length > 0) {
+                    otpBoxes[0].focus(); // Focus on the first OTP box
+                }
+            const badge = document.getElementById('connectionBadge');
+            
+            badge.classList.remove('disconnected');
+            badge.classList.add('connected');
+            badge.textContent = 'Connected';  // Hide share screen button
+
+
+        });
+        // Handle screenshot from main process
+        ipcRenderer.on('screenshot', (event, imgBase64) => {
+            
+            document.getElementById('screenshots').innerText = '';
+            document.getElementById('status').classList.remove('sharing');
+            // console.log(imgBase64);
+            let img = document.getElementById('sharedScreenshot');
+            if (!img) {
+                img = document.createElement('img');
+                img.id = 'sharedScreenshot';
+                img.style.maxWidth = '100%';
+                document.getElementById('screenshots').appendChild(img);
+            }
+            img.src = `data:image/png;base64,${imgBase64}`;
+            if(imgBase64 == ''){
+                document.getElementById('status').innerText = 'Screen sharing stopped...';
+                document.getElementById('disconnectBtn').style.display = 'none'; // Hide disconnect button
+                document.getElementById('fileBtn').style.display = 'none'; // Hide disconnect button
+                document.getElementById('status').classList.remove('sharing');
+
+            }else{
+                // alert('ssss');
+                document.getElementById('status').innerText = 'Screen Sharing...';
+                document.getElementById('status').classList.add('sharing');
+
+                document.getElementById('disconnectBtn').style.display = 'inline-block'; // Hide disconnect button
+                document.getElementById('fileBtn').style.display = 'inline-block'; // Hide disconnect button
+
+            }
+            
+
+            let originalWidth, originalHeight;
+
+            // Store original dimensions once the image loads
+            img.onload = () => {
+                originalWidth = img.naturalWidth;
+                originalHeight = img.naturalHeight;
+            };
+
+            img.addEventListener('mousemove', (e) => {
+
+
+                let enteredUUID = '';
+                const otpBoxes = document.querySelectorAll('.otp-box');
+
+                otpBoxes.forEach(box => enteredUUID += box.value); // Concatenate values of all input boxes
+
+                // Get the position of the image and its displayed dimensions
+                const rect = img.getBoundingClientRect();
+                const displayedWidth = rect.width;
+                const displayedHeight = rect.height;
+
+                // Calculate the scaling factors
+                const scaleX = originalWidth / displayedWidth;
+                const scaleY = originalHeight / displayedHeight;
+
+                // Calculate the mouse position relative to the original image size
+                const mouseX = (e.clientX - rect.left) * scaleX;
+                const mouseY = (e.clientY - rect.top) * scaleY;
+
+                // Log or process mouse coordinates
+                // console.log(`Original Image X: ${mouseX.toFixed(2)}, Original Image Y: ${mouseY.toFixed(2)}`);
+
+                // Optionally send mouse coordinates to the main process
+                ipcRenderer.send('mouse-move', { x: mouseX, y: mouseY },enteredUUID);
+            });
+
+            // Mouse click functionality
+            img.addEventListener('click', (e) => {
+                let enteredUUID = '';
+                const otpBoxes = document.querySelectorAll('.otp-box');
+
+                otpBoxes.forEach(box => enteredUUID += box.value); // Concatenate values of all input boxes
+                // Get the position of the mouse click relative to the image
+                // Get the position of the image and its displayed dimensions
+                const rect = img.getBoundingClientRect();
+                const displayedWidth = rect.width;
+                const displayedHeight = rect.height;
+
+                // Calculate the scaling factors
+                const scaleX = originalWidth / displayedWidth;
+                const scaleY = originalHeight / displayedHeight;
+
+                // Calculate the mouse position relative to the original image size
+                const clickX = (e.clientX - rect.left) * scaleX;
+                const clickY = (e.clientY - rect.top) * scaleY;
+
+                // Log or process mouse coordinates
+                // console.log(`Original Image X: ${clickX.toFixed(2)}, Original Image Y: ${clickY.toFixed(2)}`);
+
+                console.log(`Click X: ${clickX}, Click Y: ${clickY}`);
+
+                // Optionally send click coordinates to the main process
+                ipcRenderer.send('mouse-click', { x: clickX, y: clickY },enteredUUID);
+            });
+
+
+        
+            
+
+            const pressedKeys = new Set();
+const isKeyPressed = {}; // Object to track the pressed state of keys
+ 
+// Function to handle key down events
+const handleKeyDown = (event) => {
+    // Check if the key is not already pressed
+    if (!pressedKeys.has(event.key) && !isKeyPressed[event.key]) {
+        pressedKeys.add(event.key); // Add the key to the set
+        isKeyPressed[event.key] = true; // Mark the key as pressed
+        console.log(`Key pressed: ${event.key}`); // Log key presses
+        let enteredUUID = '';
+        const otpBoxes = document.querySelectorAll('.otp-box');
+
+        otpBoxes.forEach(box => enteredUUID += box.value); // Concatenate values of all input boxes
+
+        // Send the key press to the server
+        ipcRenderer.send('key-press', event.key,enteredUUID);
+    }
+};
+
+// Function to handle key up events
+const handleKeyUp = (event) => {
+    // Remove the key from the set when released
+    pressedKeys.delete(event.key);
+    isKeyPressed[event.key] = false; // Mark the key as not pressed
+    // ipcRenderer.send('key-press', event.key);
+
+};
+
+// Function to add event listeners
+const addEventListeners = () => {
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+};
+
+// Function to remove event listeners
+const removeEventListeners = () => {
+    window.removeEventListener('keydown', handleKeyDown);
+    window.removeEventListener('keyup', handleKeyUp);
+};
+
+// Add a mouseenter event listener to the image
+img.addEventListener('mouseenter', () => {
+    addEventListeners(); // Add keydown and keyup event listeners
+
+    // Clean up listeners when the mouse leaves the image
+    img.addEventListener('mouseleave', () => {
+        removeEventListeners(); // Clean up keydown and keyup listeners
+    }, { once: true }); // Ensure this listener is added only once
+});
+
+
+
+
+
+
+        });
+
+        const otpBoxes = document.querySelectorAll('.otp-box');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const fileBtn = document.getElementById('fileBtn');
+
+        // Auto-focus to the next input when a character is entered
+        otpBoxes.forEach((box, index) => {
+            box.addEventListener('input', () => {
+                if (box.value.length === 1 && index < otpBoxes.length - 1) {
+                    otpBoxes[index + 1].focus();
+                }
+            });
+        });
+
+
+
+        // Handle connection attempt when Connect button is clicked
+        document.getElementById('connectBtn').addEventListener('click', () => {
+            // alert('connect');
+            // Get the UUID from the 5 OTP input boxes
+            let enteredUUID = '';
+            const otpBoxes = document.querySelectorAll('.otp-box');
+
+            otpBoxes.forEach(box => enteredUUID += box.value); // Concatenate values of all input boxes
+
+            if (enteredUUID.length === 5) {
+                // document.getElementById('loader').style.display = 'block'; // Show loader while checking
+                ipcRenderer.send('submit-uuid', enteredUUID); // Send UUID to main process
+                document.getElementById('status').innerText = 'Checking UUID...';
+            } else {
+                document.getElementById('status').innerText = 'Please enter all 5 characters of the UUID.';
             }
         });
 
         // Disconnect button functionality
         document.getElementById('disconnectBtn').addEventListener('click', () => {
-            socket.disconnect(); // Disconnect from the server
-            document.getElementById('status').innerText = 'Disconnected from server';
-            document.getElementById('disconnectBtn').style.display = 'none'; // Hide disconnect button
+            let enteredUUID = '';
+            
+            const otpBoxes = document.querySelectorAll('.otp-box');
+
+            otpBoxes.forEach(box => enteredUUID += box.value);
+
+            // Clear the input boxes
+            // const otpBoxes = document.querySelectorAll('.otp-box');
+            otpBoxes.forEach(box => box.value = '');
+            document.getElementById('status').classList.remove('sharing');
+            document.getElementById('status').classList.remove('success');
+
+            document.getElementById('status').innerText = 'Disconnected from server'; 
             document.getElementById('screenshots').innerHTML = ''; // Clear screenshots
+            document.getElementById('screenshots').style.display = 'none'; 
+            document.getElementById('disconnectBtn').style.display = 'none'; // Hide disconnect button
+            document.getElementById('fileBtn').style.display = 'none'; // Hide disconnect button
+        
+
+            // img.src = ''; // Clear the image if you're using one
+            ipcRenderer.send('disconnect-client',enteredUUID); // Send disconnect event to main process
+            
+
+
+            
+            
         });
     </script>
 </body>
