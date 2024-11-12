@@ -1,39 +1,52 @@
 {
-    "name": "sifyaccess-server",
+    "name": "vgmaccess-server",
     "version": "1.0.0",
     "main": "main.js",
     "description": "Your server app description here",
     "author": "GopalaKrishnan.V",
     "scripts": {
-      "start": "electron .",
-      "build": "electron-builder"  
+        "start": "electron .",
+        "build": "electron-builder"
     },
     "dependencies": {
-      "@emotion/react": "^11.13.3",
-      "@emotion/styled": "^11.13.0",
-      "@mui/material": "^6.1.1",
-      "screenshot-desktop": "^1.15.0",
-      "socket.io": "^4.0.0",      
-      "socket.io-client": "^4.7.5",
-      "uuid": "^9.0.0"
+        "@emotion/react": "^11.13.3",
+        "@emotion/styled": "^11.13.0",
+        "@mui/material": "^6.1.1",
+        "canvas": "^2.11.2",
+        "jimp": "^1.6.0",
+        "node": "^12.22.12",
+        "node-fetch": "^2.7.0",
+        "node-key-sender": "^1.0.11",
+        "node-mouse": "^0.0.2",
+        "node-window-manager": "^2.2.4",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "robotjs": "^0.6.0",
+        "screenshot-desktop": "^1.15.0",
+        "sharp": "^0.33.5",
+        "socket.io": "^4.0.0",
+        "socket.io-client": "^4.7.5",
+        "uuid": "^9.0.0"
     },
     "devDependencies": {
-      "electron": "^25.9.8",
-      "electron-builder": "^25.0.5"
+        "@electron-forge/cli": "^7.5.0",
+        "electron": "^20.3.12",
+        "electron-builder": "^25.0.5",
+        "electron-packager": "^17.1.2",
+        "electron-rebuild": "^3.2.9"
     },
     "build": {
-      "appId": "com.yourapp.server",
-      "files": [
-        "main.js",
-        "index.html",        
-        "package.json",
-        "node_modules/**/*" ,
-         "assets/**/*"
-      ],
-      "icon": "assets/sifyaccess.ico",
-      "directories": {
-        "output": "sifyaccess-server"     
-      }
+        "appId": "com.yourapp.server",
+        "files": [
+            "main.js",
+            "index.html",
+            "package.json",
+            "node_modules/**/*",
+            "assets/**/*"
+        ],
+        "icon": "assets/access.ico",
+        "directories": {
+            "output": "vgmaccess-server-2024"
+        }
     }
-  }
-  
+}

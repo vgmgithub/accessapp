@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Server App</title>
+    <title>VGMAccess | Server Application</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: unset;
         }
         #status {
             margin-top: 20px;
@@ -15,22 +15,63 @@
         #uuid {
             margin-top: 10px;
             font-style: italic;
+            font-size: smaller;
         }
         #shareScreen, #stopShare, #copyUUID {
             margin-top: 10px;
             padding: 10px;
             border: none;
-            cursor: pointer;
+            /* cursor: pointer; */
             font-size: 10px;
         }
         #shareScreen {
             background-color: #007bff;
             color: white;
+            display: none;
+            border-radius: 2px;
+            background: linear-gradient(120deg, #007bff, #039bba, #0572a9);
+            background-size: 400% 400%;
+            width: 90px;
+            transition: background 0.5s ease; /* Smooth transition */
         }
         #stopShare {
-            background-color: red;
+            background: linear-gradient(120deg, #e10808, #fa1d1d, #840505); /* Gradient background */
+            background-size: 200% 200%; /* Make the gradient larger for movement */
+            animation: gradient-move 3s ease infinite; /* Apply animation */
             color: white;
             display: none; /* Initially hidden */
+            border-radius: 5px;
+            width: 90px;
+            transition: background-color 0.3s ease; /* Smooth transition for color */
+        }
+
+        #stopShare:hover {
+        
+            cursor: pointer;
+            box-shadow: 1px 2px 10px #00000085;
+            font-weight: 700;
+        }
+
+        /* Keyframes for gradient movement */
+        @keyframes gradient-move {
+            0% {
+                background-position: 0% 50%; /* Start position */
+            }
+            50% {
+                background-position: 100% 50%; /* Move to the right */
+            }
+            100% {
+                background-position: 0% 50%; /* Return to start position */
+            }
+        }
+
+        #shareScreen:hover,#shareScreen.active {
+            background: linear-gradient(120deg, #007bff, #036a9e);
+            cursor: pointer;
+            /* box-shadow: 1px 2px 10px #00000085; */
+            font-weight: 700;
+            animation: gradient-move 3s ease infinite; /* Apply animation */
+
         }
         #copyUUID {
             background-color: #ababab;
@@ -38,7 +79,7 @@
             display: none;
             border: none;
             cursor: pointer;
-            padding: 5px;
+            padding: 4px 4px 4px 0px;
             margin-left: 5px;
             border-radius: 7px;
         }
@@ -49,86 +90,536 @@
         .uuidContainer i {
             margin-left: 5px; /* Space between UUID and icon */
         }
-        /* New CSS for IP address */
-        #ipAddress {
-            margin-top: 10px;
-            color: green;
+        /* New CSS for Snackbar */
+        #snackbar {
+            position: relative;
+            bottom: 0px;
+            right: -225px;
+            width: 100px;
+            display: none;
+            background-color: #323232e8;
+            color: white;
+            padding: 6px;
+            border-radius: 4px;
+            font-size: 8px;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            border-bottom: 1px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 50px;
+        }
+        .card {
+            border-radius: 10px;
+            width: 300px;
+            height: 150px;
+            margin: 30px;
+            padding: 20px 10px;
+            text-align: center;
+            box-shadow: 1px 1px 10px #0000004f;
+        }
+        /* Logo styles */
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        .logo img {
+            /* height: 50px; */
+            margin-right: 15px;
+        }
+        .logo h1 {
+            font-size: 20px;
+        }
+        #p_s_status{
+            font-size: 9px;
+            font-weight: 700;
+            background-color: #9e9e9e4f;
+            padding: 5px;
+            border-radius: 5px;
+            bottom: 5px;
+            position: absolute;
+            text-align: center;
+            width: 250px;
+            left: 65px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.4em 0.8em;
+            font-size: 8px;
             font-weight: bold;
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+        }
+        .uuidtext{
+            font-size: 30px;
+            font-weight: 600;
+            letter-spacing: 8px;
+            font-style: normal;
+            
+        }
+        #uuid{
+            margin-left: 35px;
+        }
+        /* Connected state - green */
+        .connected {
+            background-color: #28a745; /* Green */
+        }
+
+        .osstatus {
+            background-color: #4c91e5;
+            margin-right: 10px;
+        }
+
+        /* Disconnected state - red */
+        .disconnected {
+            background-color: #dc3545; /* Red */
+        }
+        #clientInfoTable th{
+            font-size: 13px;
+        }
+        #clientInfoTable td{
+            font-size: 10px;
+            font-weight: 700;
+        }
+        
+        #error-msg {
+            position: fixed;
+            bottom: 185px;
+            right: 50px;
+            padding: 5px 15px;
+            background: linear-gradient(270deg, #e10808, #f90000, #000100, #840505); 
+            background-size: 400% 400%; /* Adjust size for smoother transition */
+            color: white;
+            border-radius: 5px;
+            display: none; /* Initially hidden */
+            font-size: 8px;
+            width: 265px;
+            box-shadow: 1px 5px 8px #00000038;
+            text-align: center;
+            cursor: pointer;
+            animation: gradient-move 3s ease infinite; /* Apply animation */
+        }
+
+        @keyframes gradient-move {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        
+        #notification {
+            position: fixed;
+            bottom: 185px;
+            right: 50px;
+            padding: 5px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            display: none;
+            font-size: 8px;
+            width: 265px;
+            box-shadow: 1px 5px 8px #00000038;
+            text-align: center;
+            cursor: pointer;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-5px); } /* Adjust how far up you want it to move */
+            100% { transform: translateY(0); }
         }
     </style>
 </head>
 <body>
-    <h1>Server App</h1>
-    
-    <!-- New div for displaying IP address -->
-    <div id="ipAddress">Fetching IP address...</div>
-    
-    <button id="shareScreen">Share Screen</button>
-    <button id="stopShare">Stop Sharing</button>
-    <div id="status">Waiting for client...</div>
-    <div class="uuidContainer">
-        <div id="uuid"></div>
-        <button id="copyUUID" title="Copy UUID"><i class="fas fa-copy"></i></button>
+    <audio id="notification-pop" src="./assets/pop.mp3" preload="auto"></audio>
+    <audio id="notification-connect" src="./assets/connect.wav" preload="auto"></audio>
+    <audio id="notification-disconnect" src="./assets/disconnect.wav" preload="auto"></audio>
+    <div id="notification" style="display: none;"></div>
+    <div id="error-msg" style="display: none;"></div>
     </div>
+    <!-- Header Section -->
+    <header>
+        <!-- Logo and Title -->
+        <div class="logo">
+            <img src="./assets/logo.png" width="70px">
+            <h1>SCREEN SHARE APP</h1>
+        </div>
+    </header> 
+    <center>
+        <div class="card">
+            <button id="shareScreen">Share Screen</button>
+            <button id="stopShare">Stop Sharing</button>
+            <div id="status">Connecting to Public Server...</div>
+            <center>
+                <img src="./assets/durability.gif" id="durability" width="80px" style="display: none;">
+                <img src="./assets/link.gif" id="link" width="80px" style="display: none;">
 
-    <!-- Material-UI Snackbar -->
-    <div id="snackbar" style="position: fixed; bottom: 20px; right: 20px; display: none; background-color: #323232; color: white; padding: 16px; border-radius: 4px;">
-        UUID copied to clipboard!
-    </div>
+            </center>
+
+            <div class="uuidContainer">
+                <div id="uuid"></div>
+                <button id="copyUUID" title="Copy UUID"><i class="fas fa-copy"></i></button>
+            </div>
+            <!-- Material-UI Snackbar -->
+            <div id="snackbar">UUID copied to clipboard!</div>
+            <div id="fileList"></div>
+        </div>
+        <!-- <hr> -->
+        <table id="clientInfoTable" style="display: none;margin-left: 33%;" >
+            <thead>
+                <tr>
+                    <th>In Access</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be dynamically added here -->
+            </tbody>
+        </table>
+        <!-- <p id="os-info">Loading OS info...</p> -->
+        <span id="p_s_status">OS <span id="os-info" class="badge osstatus">loading..</span> public server <span id="connectionBadge" class="badge disconnected">disconnected</span></span>
+    </center>
+
+    
 
     <script>
         const { ipcRenderer } = require('electron');
-        const socket = require('socket.io-client')('http://localhost:3000');
-
-        // Listen for the server IP address from the main process
-        ipcRenderer.on('server-ip', (event, ipAddress) => {
-            document.getElementById('ipAddress').innerText = `Server IP Address: ${ipAddress}`;
-        });
-        
+        const socket = require('socket.io-client')('http://localhost:3001');
 
         // Click to request UUID and start screen sharing
-        document.getElementById('shareScreen').addEventListener('click', () => {
+        document.getElementById('shareScreen').addEventListener('click', function() {
             socket.emit('requestUUID');
             document.getElementById('status').innerText = 'Generating UUID...';
+            this.disabled = true; // Disable button while waiting
+            this.classList.add('active');
         });
 
         // Click to stop screen sharing
         document.getElementById('stopShare').addEventListener('click', () => {
-            socket.emit('stopSharing');
+            const uuid = document.getElementById('uuid').textContent;
+            const sanitizeuuid= uuid.replace("Generated UUID: ", "");
+            socket.emit('stopSharing', sanitizeuuid);
             document.getElementById('status').innerText = 'Screen sharing stopped.';
             document.getElementById('stopShare').style.display = 'none';  // Hide stop button
-            document.getElementById('shareScreen').style.display = 'inline-block';  // Show share screen button
+            document.getElementById('shareScreen').style.display = 'none';  // Hide stop button
+            document.getElementById('uuid').style.display = 'none';  // Hide stop button
+            document.getElementById('copyUUID').style.display = 'none'; // Show copy UUID button
+            document.getElementById('shareScreen').classList.remove('active');
+            // Remove all rows from the table body
+            const tableBody = document.getElementById('clientInfoTable').getElementsByTagName('tbody')[0];
+            while (tableBody.rows.length > 0) {
+                tableBody.deleteRow(0);  // Deletes the first row until the table is empty
+            }
+
+            // Hide the table after clearing it
+            document.getElementById('clientInfoTable').style.display = 'none';
+            const audio_disconnect = document.getElementById('notification-disconnect');
+            audio_disconnect.play();
+        });
+
+        ipcRenderer.invoke('get-os-info').then((osName) => {
+            console.log('sdad');
+            console.log(osName);
+            document.getElementById('os-info').textContent = `${osName}`;
         });
 
         // When a new UUID is generated, display it
         socket.on('newUUID', (uuid) => {
-            document.getElementById('uuid').innerText = `Generated UUID: ${uuid}`;
+            // document.getElementById('uuid').innerText = `Generated UUID: <span class='uuidtext'>${uuid}</span>`;
+            // Create a new span element
+            const uuidSpan = document.createElement('span');
+
+            // Set the class for styling
+            uuidSpan.className = 'uuidtext';
+
+            // Set the UUID text inside the span
+            uuidSpan.innerText = uuid; // Assuming 'uuid' is your variable with the generated UUID
+
+            // Find the element where you want to add the text
+            const container = document.getElementById('uuid');
+
+            // Clear the container (optional, if you want to replace old content)
+            container.innerHTML = '';
+
+            // Add the text "Generated UUID: " as a normal text node
+            container.appendChild(document.createTextNode('Generated UUID: '));
+
+            // Append the new span with the UUID
+            container.appendChild(uuidSpan);
             document.getElementById('status').innerText = 'Waiting for client connection...';
             document.getElementById('copyUUID').style.display = 'inline-block'; // Show copy UUID button
+            document.getElementById('shareScreen').disabled = false; // Enable button again
+            document.getElementById('uuid').style.display = 'inline-block';  // Hide share screen button
+
         });
 
         // When a client connects, update the status and toggle buttons
-        socket.on('clientConnected', () => {
-            document.getElementById('status').innerText = 'Client connected!';
-            document.getElementById('shareScreen').style.display = 'none';  // Hide share screen button
-            document.getElementById('stopShare').style.display = 'inline-block';  // Show stop sharing button
+        socket.on('registerServer', () => {
+
+            console.log('conn');
+            document.getElementById('status').innerText = 'Generate UUID to Start Sharing....';
+            document.getElementById('shareScreen').style.display = 'inline-block';  // Hide share screen button
+            document.getElementById('stopShare').style.display = 'none';  // Hide share screen button
+            document.getElementById('durability').style.display = 'none';  // Hide share screen button
+            
+            const badge = document.getElementById('connectionBadge');
+
+            // alert('connedcted');
+            badge.classList.remove('disconnected');
+            badge.classList.add('connected');
+            badge.textContent = 'Connected';  // Hide share screen button
+
         });
+
+        
+        
+        socket.on('client_connected', () => {
+            document.getElementById('status').innerText = 'Waiting for client..';
+            document.getElementById('shareScreen').style.display = 'inline-block';  // Hide share screen button
+            // const badge = document.getElementById('connectionBadge');
+            // badge.classList.remove('disconnected');
+            // badge.classList.add('connected');
+            // badge.textContent = 'Connected';  // Hide share screen button
+
+        });
+
+        socket.on('copiedData', (copiedData) => {
+            const uuid = document.getElementById('uuid').textContent;
+            const sanitizeuuid= uuid.replace("Generated UUID: ", "");
+
+            socket.emit('sendCopiedData',copiedData,sanitizeuuid);
+
+        });
+
+
+
+        // When a client connects, update the status and toggle buttons
+        socket.on('disconnect_public', () => {
+            document.getElementById('status').innerText = 'Disconnected from Public Server.!'; 
+            document.getElementById('durability').style.display = 'none';
+
+            document.getElementById('link').style.display = 'block';  // Hide share screen button
+
+            document.getElementById('shareScreen').style.display = 'none';  // Hide share screen button
+            document.getElementById('uuid').style.display = 'none';  // Hide share screen button
+            document.getElementById('copyUUID').style.display = 'none';  // Hide share screen button
+            const badge = document.getElementById('connectionBadge');
+            badge.classList.remove('connected');
+            badge.classList.add('disconnected');
+            badge.textContent = 'Disconnected';
+            setTimeout(() => {
+                socket.emit('stopSharing');
+                document.getElementById('link').style.display = 'none';  // Hide share screen button
+
+                        }, 3000);
+
+        });
+
+        // When a client connects, update the status and toggle buttons
+        socket.on('connect_error_public', () => {
+            document.getElementById('status').innerText = 'Connecting to Public Server..'; 
+            document.getElementById('durability').style.display = 'block';
+
+            const badge = document.getElementById('connectionBadge');
+            badge.classList.remove('connected');
+            badge.classList.add('disconnected');
+            badge.textContent = 'Disconnected';
+            document.getElementById('shareScreen').classList.remove('active');
+            document.getElementById('shareScreen').style.display = 'none';
+
+
+            document.getElementById('stopShare').style.display = 'none';  // Hide stop button
+            console.log('stoppp server');
+            const table = document.getElementById('clientInfoTable').getElementsByTagName('tbody')[0];
+            const tableHead = document.getElementById('clientInfoTable').getElementsByTagName('thead')[0].rows[0].cells[0];
+            const audio_disconnect = document.getElementById('notification-disconnect');
+        
+            // Check if there are any rows in the table body
+            if (table.rows.length > 0) {
+                audio_disconnect.play().catch(error => {
+                    console.error("Error playing audio:", error);
+                });
+            } else {
+                console.log("No entries in the table, audio will not play.");
+            }
+            // Clear all rows in the table
+            while (table.rows.length > 0) {
+                table.deleteRow(0);
+            }
+
+            // Update the table header to say "No client in access" if all rows are deleted
+            if (table.rows.length === 0) {
+                tableHead.innerText = 'No client in access';
+            }
+         
+        });
+
+        // When a client connects, update the status and toggle buttons
+        socket.on('reconnect_attempt_public', () => {
+            document.getElementById('status').innerText = 'Connecting to Public Server....'; 
+            const badge = document.getElementById('connectionBadge');
+            badge.classList.remove('connected');
+            badge.classList.add('disconnected');
+            badge.textContent = 'Disconnected';
+
+            
+
+        });
+        
+        // When a client connects, update the status and toggle buttons
+        // Client-side code
+        socket.on('clientConnected', (data) => {
+            console.log('client connected');
+            document.getElementById('clientInfoTable').style.display = 'block';  
+            const tableHead = document.getElementById('clientInfoTable').getElementsByTagName('thead')[0].rows[0].cells[0];
+            tableHead.innerText = 'In access';
+
+            const biosnumber = data.biosnumber;
+            const uuid = document.getElementById('uuid').textContent;
+            const sanitizeuuid= uuid.replace("Generated UUID: ", "");
+            document.getElementById('status').innerText = 'Screen Sharing!';
+            
+            const table = document.getElementById('clientInfoTable').getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+
+            const newCell = newRow.insertCell(0);
+            newCell.innerText = 'BIOS Number: ' + biosnumber;
+
+            document.getElementById('shareScreen').style.display = 'none';  
+            document.getElementById('stopShare').style.display = 'inline-block';  
+
+            const audio_connect = document.getElementById('notification-connect');
+            audio_connect.play();
+
+            // Add File Share Icon
+            const fileShareIcon = document.createElement('img');
+            fileShareIcon.src = './assets/send.png';
+            fileShareIcon.alt = 'Share File';
+            fileShareIcon.title = 'Share File';
+            fileShareIcon.style.cursor = 'pointer';
+            fileShareIcon.style.display = 'inline-block';
+            fileShareIcon.style.width = '15px';
+            fileShareIcon.style.height = '15px';
+
+            // File input element for file selection
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.style.display = 'none';
+
+            // Set up file selection and sharing
+            fileShareIcon.onclick = () => {
+                fileInput.click(); // Trigger file selection
+            };
+
+            // When a file is selected
+            fileInput.onchange = () => {
+                const file = fileInput.files[0];
+                const MAX_FILE_SIZE = 5.1 * 1024 * 1024; // 5 MB in bytes
+                if (file) {
+                    // Check if the file size exceeds the limit
+                    if (file.size > MAX_FILE_SIZE) {
+                        const warnmsg = "Error: File size exceeds 5 MB. Please select a smaller file.";
+                        const errormsg = document.getElementById('error-msg');
+                        errormsg.textContent = warnmsg;
+                        errormsg.style.display = 'block'; 
+                        setTimeout(() => {
+                            errormsg.style.display = 'none';
+                        }, 5000); // Change time as needed
+                        return; // Prevent further processing
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const fileData = reader.result;
+                        // Emit 'share-file-client' with file data, uuid, and biosnumber
+                        socket.emit('share-file-client', { sanitizeuuid, biosnumber, fileName: file.name, fileData });
+                        fileInput.value = '';
+                    };
+                    reader.readAsDataURL(file); // Read the file as base64
+                }
+            };
+
+            // Append the file share icon to the row
+            const fileShareCell = newRow.insertCell(1);
+            fileShareCell.appendChild(fileShareIcon);
+        });
+
+
+
+        
+
+
+        socket.on('file-update', (data) => {
+            console.log('New file update:', data);
+            console.log('New file path:', data.folderPath);
+            showNotification(data.message, data.folderPath);
+            // You can also perform other actions with data.fileInfo if needed
+        });
+
+         // Function to display notifications
+        function showNotification(message,filepath) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            console.log('FOLDER',filepath);
+            // Play the notification sound
+            const audio_pop = document.getElementById('notification-pop');
+            audio_pop.play();
+            notification.addEventListener('click', () => {
+                if (filepath) { 
+                    ipcRenderer.send('open-folder', filepath);
+                    console.log(`Opening folder: ${filepath}`);
+                    filepath='';
+                } else {
+                    console.error('No folder path provided.');
+                }
+            });
+            // Hide the notification after a few seconds
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 10000); // Change time as needed
+        }
 
         // When a client disconnects, reset the buttons and status
-        socket.on('clientDisconnected', () => {
-            document.getElementById('status').innerText = 'Client disconnected!';
-            document.getElementById('stopShare').style.display = 'none';  // Hide stop button
-            document.getElementById('shareScreen').style.display = 'inline-block';  // Show share screen button
+        socket.on('clientDisconnected', (biosSerialNumber) => {
+            const table = document.getElementById('clientInfoTable').getElementsByTagName('tbody')[0];
+            const tableHead = document.getElementById('clientInfoTable').getElementsByTagName('thead')[0].rows[0].cells[0];
+            document.getElementById('status').innerText = 'Screen Sharing..!';
+
+            // Iterate over each row in the table
+            for (let i = 0; i < table.rows.length; i++) {
+                let row = table.rows[i];
+                
+                // Check if the row contains the BIOS number
+                if (row.cells[0].innerText.includes(biosSerialNumber)) {
+                    table.deleteRow(i);  // Remove the row from the table
+                    break;  // Exit the loop once the row is found and removed
+                }
+            }
+
+            if (table.rows.length === 0) {
+                // Update the table header to say "No client in access"
+                tableHead.innerText = 'No client in access';
+                document.getElementById('status').innerText = 'Ready to Share Screen !';
+
+
+            } 
+            const audio_disconnect = document.getElementById('notification-disconnect');
+            audio_disconnect.play();
         });
 
-        // When a server disconnects, reset the buttons and status
-        socket.on('serverDisconnected', () => {
-            document.getElementById('status').innerText = 'Connection disconnected!';
-            document.getElementById('stopShare').style.display = 'none';  // Hide stop button
-            document.getElementById('shareScreen').style.display = 'inline-block';  // Show share screen button
-        });
-
-        // Copy UUID to clipboard
+        // Copy UUID to clipboard functionality
         document.getElementById('copyUUID').addEventListener('click', () => {
             const uuidText = document.getElementById('uuid').innerText;
             if (uuidText) {
@@ -141,14 +632,14 @@
             }
         });
 
-        // Function to show Snackbar
+        
         function showSnackbar(message) {
             const snackbar = document.getElementById('snackbar');
             snackbar.innerText = message;
             snackbar.style.display = 'block';
             setTimeout(() => {
                 snackbar.style.display = 'none';
-            }, 3000); // Adjust duration as needed (3 seconds)
+            }, 3000);
         }
     </script>
 </body>
